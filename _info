@@ -1,0 +1,289 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dC:/intelFPGA/18.1
+vCCD
+Z1 !s110 1685623803
+!i10b 1
+!s100 _eco7JVY9R292C6UZ@JmJ2
+I7J<=g88oT6`PU>GLTUGfj3
+Z2 VDg1SIo80bB@j0V0VzS_@n1
+R0
+w1668761466
+8C:/Users/liawc/OneDrive/GoWin/CCD-master/CCD.v
+FC:/Users/liawc/OneDrive/GoWin/CCD-master/CCD.v
+L0 6
+Z3 OV;L;10.5b;63
+r1
+!s85 0
+31
+Z4 !s108 1685623803.000000
+!s107 C:/Users/liawc/OneDrive/GoWin/CCD-master/CCD.v|
+!s90 -reportprogress|300|-work|work|C:/Users/liawc/OneDrive/GoWin/CCD-master/CCD.v|
+!i113 1
+Z5 o-work work
+Z6 tCvgOpt 0
+n@c@c@d
+vCCDTB
+R1
+!i10b 1
+!s100 3IbfIDPO5B<FiO=4aG7Ui2
+IU^3z;c^WoB49D5S3oGELV1
+R2
+R0
+w1684463249
+8C:/Users/liawc/OneDrive/GoWin/CCD-master/CCDTB.v
+FC:/Users/liawc/OneDrive/GoWin/CCD-master/CCDTB.v
+L0 5
+R3
+r1
+!s85 0
+31
+R4
+!s107 C:/Users/liawc/OneDrive/GoWin/CCD-master/CCDTB.v|
+!s90 -reportprogress|300|-work|work|C:/Users/liawc/OneDrive/GoWin/CCD-master/CCDTB.v|
+!i113 1
+R5
+R6
+n@c@c@d@t@b
+vclk_20m_div
+R1
+!i10b 1
+!s100 `oC7@IQT0kXD9`lH?C_P_1
+Iz05Fzf<7dT88KEK:b[oa;1
+R2
+R0
+Z7 w1668760875
+8C:/Users/liawc/OneDrive/GoWin/CCD-master/clk_20m_div.v
+FC:/Users/liawc/OneDrive/GoWin/CCD-master/clk_20m_div.v
+L0 1
+R3
+r1
+!s85 0
+31
+R4
+!s107 C:/Users/liawc/OneDrive/GoWin/CCD-master/clk_20m_div.v|
+!s90 -reportprogress|300|-work|work|C:/Users/liawc/OneDrive/GoWin/CCD-master/clk_20m_div.v|
+!i113 1
+R5
+R6
+vClock_divider
+R1
+!i10b 1
+!s100 njS0kBQT5BZPKRb_n0TAk0
+IEId^V_6=U9fDWXTZ2PbX32
+R2
+R0
+R7
+8C:/Users/liawc/OneDrive/GoWin/CCD-master/clock_divider.v
+FC:/Users/liawc/OneDrive/GoWin/CCD-master/clock_divider.v
+L0 2
+R3
+r1
+!s85 0
+31
+R4
+!s107 C:/Users/liawc/OneDrive/GoWin/CCD-master/clock_divider.v|
+!s90 -reportprogress|300|-work|work|C:/Users/liawc/OneDrive/GoWin/CCD-master/clock_divider.v|
+!i113 1
+R5
+R6
+n@clock_divider
+vcmd_final
+!s110 1685623804
+!i10b 1
+!s100 eHoMD2_a`<PHi38YoDhM=2
+IhY5:N73?UAokElYgSUDkR0
+R2
+R0
+w1684738678
+8C:/Users/liawc/OneDrive/GoWin/CCD-master/cmd_final.v
+FC:/Users/liawc/OneDrive/GoWin/CCD-master/cmd_final.v
+L0 5
+R3
+r1
+!s85 0
+31
+!s108 1685623804.000000
+!s107 C:/Users/liawc/OneDrive/GoWin/CCD-master/cmd_final.v|
+!s90 -reportprogress|300|-work|work|C:/Users/liawc/OneDrive/GoWin/CCD-master/cmd_final.v|
+!i113 1
+R5
+R6
+vdivider
+!s110 1686028389
+!i10b 1
+!s100 Km3YiHOWFQc8bBgM[i>OH3
+IV=_kOPMA2i0d^T8EDg6VE1
+R2
+R0
+w1685938191
+8C:/Users/liawc/OneDrive/GoWin/fpga_project/src/divider.v
+FC:/Users/liawc/OneDrive/GoWin/fpga_project/src/divider.v
+L0 8
+R3
+r1
+!s85 0
+31
+!s108 1686028389.000000
+!s107 C:/Users/liawc/OneDrive/GoWin/fpga_project/src/divider.v|
+!s90 -reportprogress|300|-work|work|C:/Users/liawc/OneDrive/GoWin/fpga_project/src/divider.v|
+!i113 1
+R5
+R6
+vSPI_slave
+Z8 !s110 1686028324
+!i10b 1
+!s100 Zn8EG`;V:cbhkBeJ;hhJK2
+IRk;2kbm`H5>KT_Y5gHL[92
+R2
+R0
+w1668761385
+8C:/Users/liawc/OneDrive/GoWin/CCD-master/spi_slave.v
+FC:/Users/liawc/OneDrive/GoWin/CCD-master/spi_slave.v
+L0 5
+R3
+r1
+!s85 0
+31
+Z9 !s108 1686028324.000000
+!s107 C:/Users/liawc/OneDrive/GoWin/CCD-master/spi_slave.v|
+!s90 -reportprogress|300|-work|work|C:/Users/liawc/OneDrive/GoWin/CCD-master/spi_slave.v|
+!i113 1
+R5
+R6
+n@s@p@i_slave
+vspi_slave_tb
+R8
+!i10b 1
+!s100 TEd3gT>[Vad@lhehHkkzO3
+Iek`_O78SC23<fRgLh>>gL1
+R2
+R0
+w1684739624
+8C:/Users/liawc/OneDrive/GoWin/CCD-master/spi_slave_tb.v
+FC:/Users/liawc/OneDrive/GoWin/CCD-master/spi_slave_tb.v
+L0 8
+R3
+r1
+!s85 0
+31
+R9
+!s107 C:/Users/liawc/OneDrive/GoWin/CCD-master/spi_slave_tb.v|
+!s90 -reportprogress|300|-work|work|C:/Users/liawc/OneDrive/GoWin/CCD-master/spi_slave_tb.v|
+!i113 1
+R5
+R6
+vSPI_TB
+R8
+!i10b 1
+!s100 `YzEk^AS=3CLzg^VIf@Yi2
+IkRoBCS3mZidnY@@4fIWWY0
+R2
+R0
+w1684658869
+8C:/Users/liawc/OneDrive/GoWin/CCD-master/SPI_TB.v
+FC:/Users/liawc/OneDrive/GoWin/CCD-master/SPI_TB.v
+L0 5
+R3
+r1
+!s85 0
+31
+R9
+!s107 C:/Users/liawc/OneDrive/GoWin/CCD-master/SPI_TB.v|
+!s90 -reportprogress|300|-work|work|C:/Users/liawc/OneDrive/GoWin/CCD-master/SPI_TB.v|
+!i113 1
+R5
+R6
+n@s@p@i_@t@b
+vtestTB
+!s110 1686029101
+!i10b 1
+!s100 c]1hJnEm?mlE8?bW[NDjT2
+IP_NaD:]0:AOQl1bj[UeB=0
+R2
+R0
+w1686029094
+8C:/Users/liawc/OneDrive/GoWin/fpga_project/src/uart_tb.v
+FC:/Users/liawc/OneDrive/GoWin/fpga_project/src/uart_tb.v
+L0 5
+R3
+r1
+!s85 0
+31
+!s108 1686029101.000000
+!s107 C:/Users/liawc/OneDrive/GoWin/fpga_project/src/uart_tb.v|
+!s90 -reportprogress|300|-work|work|C:/Users/liawc/OneDrive/GoWin/fpga_project/src/uart_tb.v|
+!i113 1
+R5
+R6
+ntest@t@b
+vuart_message
+!s110 1686028377
+!i10b 1
+!s100 KMBgKYWQ::SF?o40Jbf;:1
+IY8?^DlkZL9ghJ:cdhc>_Z1
+R2
+R0
+w1686023558
+8C:/Users/liawc/OneDrive/GoWin/fpga_project/src/uart_message.v
+FC:/Users/liawc/OneDrive/GoWin/fpga_project/src/uart_message.v
+L0 4
+R3
+r1
+!s85 0
+31
+!s108 1686028377.000000
+!s107 C:/Users/liawc/OneDrive/GoWin/fpga_project/src/uart_message.v|
+!s90 -reportprogress|300|-work|work|C:/Users/liawc/OneDrive/GoWin/fpga_project/src/uart_message.v|
+!i113 1
+R5
+R6
+vuart_rx
+R8
+!i10b 1
+!s100 Wfge_:b`WDDn5bM69Y`Y10
+IaD:iZB0g:lDnNS^Q2nLRh0
+R2
+R0
+w1684653544
+8C:/Users/liawc/OneDrive/GoWin/fpga_project/src/uart_rx.v
+FC:/Users/liawc/OneDrive/GoWin/fpga_project/src/uart_rx.v
+L0 1
+R3
+r1
+!s85 0
+31
+R9
+!s107 C:/Users/liawc/OneDrive/GoWin/fpga_project/src/uart_rx.v|
+!s90 -reportprogress|300|-work|work|C:/Users/liawc/OneDrive/GoWin/fpga_project/src/uart_rx.v|
+!i113 1
+R5
+R6
+vuart_tx
+R8
+!i10b 1
+!s100 f748IS]2HidR3zhHW?^3d2
+IS5QZ`j20RKH9SY9BXGZTB3
+R2
+R0
+w1684718520
+8C:/Users/liawc/OneDrive/GoWin/fpga_project/src/uart_tx.v
+FC:/Users/liawc/OneDrive/GoWin/fpga_project/src/uart_tx.v
+L0 1
+R3
+r1
+!s85 0
+31
+R9
+!s107 C:/Users/liawc/OneDrive/GoWin/fpga_project/src/uart_tx.v|
+!s90 -reportprogress|300|-work|work|C:/Users/liawc/OneDrive/GoWin/fpga_project/src/uart_tx.v|
+!i113 1
+R5
+R6
