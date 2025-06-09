@@ -1,101 +1,132 @@
-/**************************************************************
-            uart发送(并转串)
-            根据uart时序,将帧数据发送给上位机                      
-**************************************************************/
-module uart_tx(
-    input                   clk                  ,
-    input                   rst_n                ,
-    output                  busy                 ,
-    input  [7:0]            tx_data              ,
-    input                   tx_data_vld          ,
-    output                  tx                  
+module uart_tx
+#(
+	parameter CLK_FRE = 27,      //clock frequency(Mhz)
+	parameter BAUD_RATE = 115200 //serial baud rate
+)
+(
+	input                        clk,              //clock input
+	input                        rst_n,            //asynchronous reset input, low active 
+	input[7:0]                   tx_data,          //data to send
+	input                        tx_data_valid,    //data to be sent is valid
+	output reg                   tx_data_ready,    //send ready
+	output                       tx_pin            //serial data output
 );
-//
-parameter BAUD = 9600; //需要计数的1bit宽度的周期计算公式: 时钟频率/波特率
-parameter CLK_FRE = 50_000_000;//时钟频率
-//
-reg                 tx_flag         ;//传输标志 1表示需要传输 0表示不传输
-
-reg  [12:0]         cnt_baud        ;//记录1bit时间
-wire                add_cnt_baud    ;
-wire                end_cnt_baud    ;
-
-reg  [3:0]          cnt_bit         ;//记录到第几bit
-wire                add_cnt_bit     ;
-wire                end_cnt_bit     ;
-
-reg  [9:0]          tx_data_r       ;
-
-reg                 tx_r            ;
-//
-/**************************************************************
-            寻找数据传输开始的位置
-            检测下降沿                  
-**************************************************************/
-always@(posedge clk or negedge rst_n)begin
-    if(!rst_n)begin
-        tx_flag <= 0;
-    end
-    else if(tx_data_vld)begin
-        tx_flag <= 1;
-    end
-    else if(end_cnt_bit)begin
-        tx_flag <= 0;
-    end
-end
-
-/**************************************************************
-            传输数据
-            记录bit时间                    
-**************************************************************/
+//calculates the clock cycle for baud rate 
+localparam                       CYCLE = CLK_FRE * 1000000 / BAUD_RATE;
+//state machine code
+localparam                       S_IDLE       = 1;
+localparam                       S_START      = 2;//start bit
+localparam                       S_SEND_BYTE  = 3;//data bits
+localparam                       S_STOP       = 4;//stop bit
+reg[2:0]                         state;
+reg[2:0]                         next_state;
+reg[15:0]                        cycle_cnt; //baud counter
+reg[2:0]                         bit_cnt;//bit counter
+reg[7:0]                         tx_data_latch; //latch data to send
+reg                              tx_reg; //serial data output
+assign tx_pin = tx_reg;
 always@(posedge clk or negedge rst_n)
-    if(!rst_n)begin
-        cnt_baud <= 13'd0;
-    end
-    else if(add_cnt_baud)begin
-        if(end_cnt_baud)begin
-            cnt_baud <= 13'd0;
-        end
-        else begin
-            cnt_baud <= cnt_baud + 1'b1;
-        end
-    end
-assign add_cnt_baud = tx_flag;
-assign end_cnt_baud = add_cnt_baud && (cnt_baud ==  (CLK_FRE/BAUD - 1));
+begin
+	if(rst_n == 1'b0)
+		state <= S_IDLE;
+	else
+		state <= next_state;
+end
+
+always@(*)
+begin
+	case(state)
+		S_IDLE:
+			if(tx_data_valid == 1'b1)
+				next_state <= S_START;
+			else
+				next_state <= S_IDLE;
+		S_START:
+			if(cycle_cnt == CYCLE - 1)
+				next_state <= S_SEND_BYTE;
+			else
+				next_state <= S_START;
+		S_SEND_BYTE:
+			if(cycle_cnt == CYCLE - 1  && bit_cnt == 3'd7)
+				next_state <= S_STOP;
+			else
+				next_state <= S_SEND_BYTE;
+		S_STOP:
+			if(cycle_cnt == CYCLE - 1)
+				next_state <= S_IDLE;
+			else
+				next_state <= S_STOP;
+		default:
+			next_state <= S_IDLE;
+	endcase
+end
+always@(posedge clk or negedge rst_n)
+begin
+	if(rst_n == 1'b0)
+		begin
+			tx_data_ready <= 1'b0;
+		end
+	else if(state == S_IDLE)
+		if(tx_data_valid == 1'b1)
+			tx_data_ready <= 1'b0;
+		else
+			tx_data_ready <= 1'b1;
+	else if(state == S_STOP && cycle_cnt == CYCLE - 1)
+			tx_data_ready <= 1'b1;
+end
+
 
 always@(posedge clk or negedge rst_n)
-    if(!rst_n)begin
-        cnt_bit <= 4'd0;
-    end
-    else if(add_cnt_bit)begin
-        if(end_cnt_bit)begin
-            cnt_bit <= 4'd0;
-        end
-        else begin
-            cnt_bit <= cnt_bit + 1'b1;
-        end
-    end
-assign add_cnt_bit = end_cnt_baud;
-assign end_cnt_bit = add_cnt_bit && (cnt_bit ==  (10 - 1));
-
-always@(posedge clk or negedge rst_n)begin
-    if(!rst_n)begin
-        tx_data_r <= 10'h3ff;
-    end
-    else if(tx_data_vld)begin
-        tx_data_r <= {1'b1,tx_data,1'b0};
-    end
+begin
+	if(rst_n == 1'b0)
+		begin
+			tx_data_latch <= 8'd0;
+		end
+	else if(state == S_IDLE && tx_data_valid == 1'b1)
+			tx_data_latch <= tx_data;
+		
 end
 
-always@(posedge clk or negedge rst_n)begin
-    if(!rst_n)begin
-        tx_r <= 1'b1;
-    end
-    else if(tx_flag && cnt_baud == 0)begin//LSB发送
-        tx_r <= tx_data_r[cnt_bit];
-    end
+always@(posedge clk or negedge rst_n)
+begin
+	if(rst_n == 1'b0)
+		begin
+			bit_cnt <= 3'd0;
+		end
+	else if(state == S_SEND_BYTE)
+		if(cycle_cnt == CYCLE - 1)
+			bit_cnt <= bit_cnt + 3'd1;
+		else
+			bit_cnt <= bit_cnt;
+	else
+		bit_cnt <= 3'd0;
 end
-assign tx = tx_r;
-assign busy = tx_flag;
 
-endmodule
+always@(posedge clk or negedge rst_n)
+begin
+	if(rst_n == 1'b0)
+		cycle_cnt <= 16'd0;
+	else if((state == S_SEND_BYTE && cycle_cnt == CYCLE - 1) || next_state != state)
+		cycle_cnt <= 16'd0;
+	else
+		cycle_cnt <= cycle_cnt + 16'd1;	
+end
+
+always@(posedge clk or negedge rst_n)
+begin
+	if(rst_n == 1'b0)
+		tx_reg <= 1'b1;
+	else
+		case(state)
+			S_IDLE,S_STOP:
+				tx_reg <= 1'b1; 
+			S_START:
+				tx_reg <= 1'b0; 
+			S_SEND_BYTE:
+				tx_reg <= tx_data_latch[bit_cnt];
+			default:
+				tx_reg <= 1'b1; 
+		endcase
+end
+
+endmodule 

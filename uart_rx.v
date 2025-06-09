@@ -1,100 +1,148 @@
-/**************************************************************
-            完成串口接口功能(串转并)                     
-**************************************************************/
-module uart_rx(
-    input                   clk                  ,
-    input                   rst_n                ,
-    input                   rx                   ,
-    output [7:0]            rx_data              ,
-    output                  rx_data_vld          
+module uart_rx
+#(
+	parameter CLK_FRE = 27,     //clock frequency(Mhz)
+	parameter BAUD_RATE = 1200  //serial baud rate
+)
+(
+	input                        clk,              //clock input
+	input                        rst_n,            //asynchronous reset input, low active 
+	output reg[7:0]              rx_data,          //received serial data
+	output reg                   rx_data_valid,    //received serial data is valid
+    output reg                   LED,
+	input                        rx_data_ready,    //data receiver module ready
+	input                        rx_pin            //serial data input
 );
-//
-parameter BAUD = 9600; //需要计数的1bit宽度的周期计算公式: 时钟频率/波特率
-parameter CLK_FRE = 50_000_000;//时钟频率
-//
-reg                 rx_r            ;
-wire                nedge           ;
+//calculates the clock cycle for baud rate 
+localparam                       CYCLE = CLK_FRE * 1000000 / BAUD_RATE;
+//state machine code
+localparam                       S_IDLE      = 1;
+localparam                       S_START     = 2; //start bit
+localparam                       S_REC_BYTE  = 3; //data bits
+localparam                       S_STOP      = 4; //stop bit
+localparam                       S_DATA      = 5;
 
-reg  [12:0]         cnt_baud        ;//记录1bit时间
-wire                add_cnt_baud    ;
-wire                end_cnt_baud    ;
-reg                 rx_flag         ;//采集标志 bit计数标志
+reg[2:0]                         state;
+reg[2:0]                         next_state;
+reg                              rx_d0;            //delay 1 clock for rx_pin
+reg                              rx_d1;            //delay 1 clock for rx_d0
+wire                             rx_negedge;       //negedge of rx_pin
+reg[7:0]                         rx_bits;          //temporary storage of received data
+reg[15:0]                        cycle_cnt;        //baud counter
+reg[2:0]                         bit_cnt;          //bit counter
 
-reg  [3:0]          cnt_bit         ;//记录到第几bit
-wire                add_cnt_bit     ;
-wire                end_cnt_bit     ;
+assign rx_negedge = rx_d1 && ~rx_d0; //~rx_d0;
 
-reg  [9:0]          rx_data_r       ;
-//
-/**************************************************************
-            寻找数据传输开始的位置
-            检测下降沿                  
-**************************************************************/
-always@(posedge clk or negedge rst_n)begin
-    if(!rst_n)begin
-        rx_r <= 1;
-    end
-    else begin
-        rx_r <= rx;
-    end
+always@(posedge clk or negedge rst_n)
+begin
+	if(rst_n == 1'b0)
+	begin
+		rx_d0 <= 1'b0;
+		rx_d1 <= 1'b0;	
+	end
+	else
+	begin
+		rx_d0 <= rx_pin;
+		rx_d1 <= rx_d0;
+	end
 end
-assign nedge = !rx && rx_r;
-/**************************************************************
-            接受数据
-            记录bit时间                    
-**************************************************************/
-always@(posedge clk or negedge rst_n)begin
-    if(!rst_n)begin
-        rx_flag <= 0;
-    end
-    else if(nedge)begin
-        rx_flag <= 1;
-    end
-    else if(end_cnt_bit)begin
-        rx_flag <= 0; 
-    end
+
+
+always@(posedge clk or negedge rst_n)
+begin
+	if(rst_n == 1'b0)
+		state <= S_IDLE;
+	else
+		state <= next_state;
+end
+
+always@(*)
+begin
+	case(state)
+		S_IDLE:
+			if(rx_negedge)
+				next_state <= S_START;
+			else
+                begin
+				next_state <= S_IDLE;
+
+                end
+		S_START:
+			if(cycle_cnt == CYCLE - 1)//one data cycle 
+				next_state <= S_REC_BYTE;
+			else
+				next_state <= S_START;
+		S_REC_BYTE:
+			if(cycle_cnt == CYCLE - 1  && bit_cnt == 3'd7)  //receive 8bit data
+				next_state <= S_STOP;
+			else
+				next_state <= S_REC_BYTE;
+		S_STOP:
+			if(cycle_cnt == CYCLE/2 - 1)//half bit cycle,to avoid missing the next byte receiver
+				next_state <= S_DATA;
+			else
+				next_state <= S_STOP;
+		S_DATA:
+			if(rx_data_ready) begin   //data receive complete
+				next_state <= S_IDLE;
+
+            end
+			else
+				next_state <= S_DATA;
+		default:
+			next_state <= S_IDLE;
+	endcase
 end
 
 always@(posedge clk or negedge rst_n)
-    if(!rst_n)begin
-        cnt_baud <= 13'd0;
-    end
-    else if(add_cnt_baud)begin
-        if(end_cnt_baud)begin
-            cnt_baud <= 13'd0;
-        end
-        else begin
-            cnt_baud <= cnt_baud + 1'b1;
-        end
-    end
-assign add_cnt_baud = rx_flag;
-assign end_cnt_baud = add_cnt_baud && (cnt_baud ==  (CLK_FRE/BAUD - 1));
+begin
+	if(rst_n == 1'b0)
+		rx_data_valid <= 1'b1;
+	else if(state == S_STOP && next_state != state)
+		rx_data_valid <= 1'b1;
+	else if(state == S_DATA && rx_data_ready)
+		rx_data_valid <= 1'b0;
+end
 
 always@(posedge clk or negedge rst_n)
-    if(!rst_n)begin
-        cnt_bit <= 4'd0;
-    end
-    else if(add_cnt_bit)begin
-        if(end_cnt_bit)begin
-            cnt_bit <= 4'd0;
-        end
-        else begin
-            cnt_bit <= cnt_bit + 1'b1;
-        end
-    end
-assign add_cnt_bit = end_cnt_baud;
-assign end_cnt_bit = add_cnt_bit && (cnt_bit ==  (10 - 1));
-
-always@(posedge clk or negedge rst_n)begin
-    if(!rst_n)begin
-        rx_data_r <= 10'h3ff;
-    end
-    else if(cnt_baud == ((CLK_FRE/BAUD)>>1))begin//LSB采样
-        rx_data_r[cnt_bit] <= rx_r;
-        //rx_data_r <= {rx_r,rx_data_r[9:1]};
-    end
+begin
+	if(rst_n == 1'b0)
+		rx_data <= 8'd0;
+	else if(state == S_STOP && next_state != state)
+		rx_data <= rx_bits;//latch received data
 end
-assign rx_data = rx_data_r[8:1];
-assign rx_data_vld = end_cnt_bit;
 
-endmodule
+always@(posedge clk or negedge rst_n)
+begin
+	if(rst_n == 1'b0)
+		begin
+			bit_cnt <= 3'd0;
+		end
+	else if(state == S_REC_BYTE)
+		if(cycle_cnt == CYCLE - 1)
+			bit_cnt <= bit_cnt + 3'd1;
+		else
+			bit_cnt <= bit_cnt;
+	else
+		bit_cnt <= 3'd0;
+end
+
+always@(posedge clk or negedge rst_n)
+begin
+	if(rst_n == 1'b0)
+		cycle_cnt <= 16'd0;
+	else if((state == S_REC_BYTE && cycle_cnt == CYCLE - 1) || next_state != state)
+		cycle_cnt <= 16'd0;
+	else
+		cycle_cnt <= cycle_cnt + 16'd1;	
+end
+//receive serial data bit data
+always@(posedge clk or negedge rst_n)
+begin
+	if(rst_n == 1'b0)
+		rx_bits <= 8'd0;
+	else if(state == S_REC_BYTE && cycle_cnt == CYCLE/2 - 1)
+		rx_bits[bit_cnt] <= rx_pin;
+	else
+		rx_bits <= rx_bits; 
+end
+endmodule 
